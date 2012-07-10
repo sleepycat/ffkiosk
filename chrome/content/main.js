@@ -1,6 +1,3 @@
-//TODO - this is currently creating a .mike\ williamson directory in ~. Stop that.
-//TODO - figure out why my observer is not being called.
-
 window.ffkiosk = (function($){
   var Ci = Components.interfaces;
   var Cc = Components.classes;
@@ -21,20 +18,14 @@ window.ffkiosk = (function($){
       }
     },
     createObserver: function(){
-      var network_observer = {
-        observe: function(aSubject, aTopic, aState){
-          dump("Subject: " + aSubject + "\tTopic: " + aTopic + "\tData: " + aState + "\r\n" );
-          //do stuff about the observed event
-          if(aState === "offline"){
-            dump("we're offline");
-          }else{
-            dump("we're online");
-          }
-        }
-      }
       var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-      observerService.addObserver(network_observer, "network:link-status-changed", false);
+      //observerService.addObserver(this, "network:link-status-changed", false);
+      observerService.addObserver(this, "*", false);//observe all events
     },
+    observe: function(aSubject, aTopic, aData){
+      //TODO - for the moment just log the events.
+      logger("Subject: " + aSubject + "\tTopic: " + aTopic + "\tData: " + aData );
+    }
   }
   return ffkiosk;
 })(jQuery)
@@ -44,3 +35,16 @@ window.onload = function(){
   ffkiosk.start();
 }
 
+window.logger = function(message){
+  var d = new Date();
+  function pad(n){return n<10 ? '0'+n : n};
+  dump("[ " + d.getUTCFullYear()+'-'
+    + pad(d.getUTCMonth()+1)+'-'
+    + pad(d.getUTCDate())+'T'
+    + pad(d.getUTCHours())+':'
+    + pad(d.getUTCMinutes())+':'
+    + pad(d.getUTCSeconds())+'Z'
+    + " ] "
+    + message + "\r\n"
+  )
+}
