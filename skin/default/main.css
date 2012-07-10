@@ -1,0 +1,7 @@
+::selection { background: transparent; }
+::-moz-selection { background: transparent; }
+
+#browser * {
+  -moz-user-select: none;
+  user-select: none;
+}

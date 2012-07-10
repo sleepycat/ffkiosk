@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://ffkiosk/skin/main.css" type="text/css"?>
+<window
+  id="main"
+  title="ffkiosk"
+  onload="onload();"
+  sizemode="fullscreen"
+  height="768"
+  width="1024"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+  <script type="application/javascript" src="chrome://ffkiosk/content/jquery-1.7.2.js" />
+  <script type="application/javascript" src="chrome://ffkiosk/content/io.js" />
+  <script type="application/javascript" src="chrome://ffkiosk/content/main.js"/>
+
+  <browser id="browser" type="content-primary" flex="1" />
+</window>

@@ -1,0 +1,3 @@
+locale branding en-US chrome/locale/branding/
+content ffkiosk content/*
+skin ffkiosk default/ ffkiosk/skin/
