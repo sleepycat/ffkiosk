@@ -1,34 +1,48 @@
-window.ffkiosk = (function($){
+window.ffkiosk = (function(){
   var Ci = Components.interfaces;
   var Cc = Components.classes;
   var Cu = Components.utils
   var ffkiosk = {
     start: function(){
       ffkiosk.createObserver();
-      var startUrl = ffkiosk.setStartUrl();
-      browser.loadURI(startUrl);
+      ffkiosk.processArgs();
+      logger("startUrl is set to " + this.startUrl);
+      logger("errorUrl is set to " + this.errorUrl);
+      browser.loadURI(this.startUrl);
     },
-    setStartUrl: function(){
+    startUrl: "https://donate.mozilla.org/page/contribute/join-mozilla?source=join_link",
+    errorUrl: "chrome://ffkiosk/content/error.html",
+    processArgs: function(){
       var cmdLine = window.arguments[0];
       cmdLine = cmdLine.QueryInterface(Ci.nsICommandLine);
       if(cmdLine.findFlag("start", false) > -1){
-        return cmdLine.handleFlagWithParam("start", false);
-      }else{
-        return 'http://news.ycombinator.com';
+        this.startUrl = cmdLine.handleFlagWithParam("start", false);
+      }
+      if(cmdLine.findFlag("error", false) > -1){
+        this.errorUrl = cmdLine.handleFlagWithParam("error", false);
       }
     },
     createObserver: function(){
       var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-      //observerService.addObserver(this, "network:link-status-changed", false);
-      observerService.addObserver(this, "*", false);//observe all events
+      observerService.addObserver(this, "network:link-status-changed", false);
+      //DEBUG - observerService.addObserver(this, "*", false);//observe all events
     },
     observe: function(aSubject, aTopic, aData){
-      //TODO - for the moment just log the events.
-      logger("Subject: " + aSubject + "\tTopic: " + aTopic + "\tData: " + aData );
+      //DEBUG - logger("Subject: " + aSubject + "\tTopic: " + aTopic + "\tData: " + aData );
+      if(aTopic === "network:link-status-changed"){
+        if(aData === "down"){
+          logger("Network went down.");
+          browser.loadURI(this.errorUrl)
+        };
+        if(aData === "up"){
+          logger("Network is up.");
+          browser.loadURI(this.startUrl)
+        };
+      }
     }
   }
   return ffkiosk;
-})(jQuery)
+})()
 
 window.onload = function(){
   window.browser = document.getElementById("browser");
