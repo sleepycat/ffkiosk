@@ -2,13 +2,24 @@ window.ffkiosk = (function(){
   var Ci = Components.interfaces;
   var Cc = Components.classes;
   var Cu = Components.utils
+  var networkLinkService = Cc["@mozilla.org/network/network-link-service;1"]
+      .getService(Ci.nsINetworkLinkService);
   var ffkiosk = {
     start: function(){
       ffkiosk.createObserver();
       ffkiosk.processArgs();
       logger("startUrl is set to " + this.startUrl);
       logger("errorUrl is set to " + this.errorUrl);
-      browser.loadURI(this.startUrl);
+      ffkiosk.tryLoading(this.startUrl);
+    },
+    tryLoading: function(url){
+      if(networkLinkService.isLinkUp){
+        // there seems to be a race condition in here.
+        // A little delay just to give the network time to be usable:
+        setTimeout(function(){browser.loadURI(url)}, 1000);
+      }else{
+        browser.loadURI(this.errorUrl);
+      }
     },
     startUrl: "https://donate.mozilla.org/page/contribute/join-mozilla?source=join_link",
     errorUrl: "chrome://ffkiosk/content/error.html",
@@ -36,7 +47,7 @@ window.ffkiosk = (function(){
         };
         if(aData === "up"){
           logger("Network is up.");
-          browser.loadURI(this.startUrl)
+          this.tryLoading(this.startUrl)
         };
       }
     }
